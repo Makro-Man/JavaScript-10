@@ -1,28 +1,28 @@
 function check() {
-    let surname = document.getElementById("Surname").value;
-    let name = document.getElementById("Name").value;
-    let age = document.getElementById("Age").value;
-    let address = document.getElementById("Address").value;
+    let surname = $("#Surname").val();
+    let name = $("#Name").val();
+    let age = $("#Age").val();
+    let address = $("#Address").val();
 
     if (surname && name && (age > 0 && age <= 100) && address) {
-        document.getElementById("Message").style.visibility = "hidden";
-        document.getElementById("AjaxGET").disabled = false;
-        document.getElementById("AjaxPOST").disabled = false;
+        $("#Message").css("visibility", "hidden");
+        $("#AjaxGET").prop("disabled", false);
+        $("#AjaxPOST").prop("disabled", false);
     } else {
-        document.getElementById("Message").style.visibility = "visible";
-        document.getElementById("AjaxGET").disabled = true;
-        document.getElementById("AjaxPOST").disabled = true;
+        $("#Message").css("visibility", "visible");
+        $("#AjaxGET").prop("disabled", true);
+        $("#AjaxPOST").prop("disabled", true);
     }
 }
 
 function validateAge() {
-    let age = document.getElementById("Age");
+    let age = $("#Age");
 
-    if (age.value > 0 && age.value <= 100) {
-        age.classList.remove("error");
+    if (age.val() > 0 && age.val() <= 100) {
+        age.removeClass("error");
     } else {
-        age.classList.add("error");
-        age.value = "";
+        age.addClass("error");
+        age.val("");
         age.focus();
         console.log("Возраст должен быть числом от 1 до 100 лет!");
     }
@@ -30,30 +30,61 @@ function validateAge() {
 
 function sendDataByGetMethod() {
     let userData = {
-        userSurname : document.getElementById("Surname").value,
-        userName : document.getElementById("Name").value,
-        userAge : document.getElementById("Age").value,
-        userAddress : document.getElementById("Address").value
+        userSurname : $("#Surname").val(),
+        userName : $("#Name").val(),
+        userAge : $("#Age").val(),
+        userAddress : $("#Address").val()
     };
 
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", "/userGet?Surname=" + userData.userSurname + "&Name="
-        + userData.userName + "&Age=" + userData.userAge + "&Address="
-        + userData.userAddress);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.send();
+    $.ajax({
+        type: "GET",
+        contentType: "application/json",
+        url: "/userGet?Surname=" + userData.userSurname + "&Name="
+            + userData.userName + "&Age=" + userData.userAge + "&Address="
+            + userData.userAddress,
+        success: function(data) {
+            alert("Ajax GET method is completed successfully!");
+            console.log(JSON.stringify(data));
+        }
+    });
 }
 
 function sendDataByPostMethod() {
     let userData = {
-        userSurname : document.getElementById("Surname").value,
-        userName : document.getElementById("Name").value,
-        userAge : document.getElementById("Age").value,
-        userAddress : document.getElementById("Address").value
+        userSurname : $("#Surname").val(),
+        userName : $("#Name").val(),
+        userAge : $("#Age").val(),
+        userAddress : $("#Address").val()
     };
 
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "/userPost");
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.send(JSON.stringify(userData));
+    $.ajax({
+        type: "POST",
+        data: JSON.stringify(userData),
+        contentType: "application/json",
+        url: "/userPost",
+        success: function(data) {
+            alert("Ajax POST method is completed successfully!");
+            console.log(JSON.stringify(data));
+        }
+    });
 }
+
+function clearFields() {
+    $("#Surname").val("");
+    $("#Name").val("");
+    $("#Age").val("");
+    $("#Address").val("");
+    check();
+}
+
+$(document).ready(function() {
+    $("#Surname").keyup(check);
+    $("#Name").keyup(check);
+    $("#Age").keyup(check);
+    $("#Age").blur(validateAge);
+    $("#Address").keyup(check);
+
+    $("#AjaxGET").click(sendDataByGetMethod);
+    $("#AjaxPOST").click(sendDataByPostMethod);
+    $("#ClearFields").click(clearFields);
+})
